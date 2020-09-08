@@ -30,3 +30,24 @@ class Production(Common):
     AWS_HEADERS = {
         'Cache-Control': 'max-age=86400, s-maxage=86400, must-revalidate',
     }
+
+
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                "hosts": [('redis', 6379)],
+            },
+        },
+    }
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.getenv('DB_NAME', 'aero_chat'),
+            'USER': os.getenv('DB_USER', 'aero_chat'),
+            'PASSWORD': os.getenv('DB_PASSWORD', 'aero_chat'),
+            'HOST': 'postgres',
+            'PORT': '5432',
+        },
+    }

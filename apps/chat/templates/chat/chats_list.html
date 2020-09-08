@@ -1,0 +1,17 @@
+<!-- chat/templates/chat/thread.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title id="title">Chat Thread Room</title>
+</head>
+<body>
+    <ul>
+    {% for username in usernames %}
+    <li> 
+        <a href="/chat/get_thread/{{username}}">{{username}}</a>
+    </li>
+    {% endfor %}
+    </ul>
+</body>
+</html>

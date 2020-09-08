@@ -9,6 +9,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 class Common(Configuration):
 
     INSTALLED_APPS = (
+        'channels',
         'django.contrib.admin',
         'django.contrib.auth',
         'django.contrib.contenttypes',
@@ -21,11 +22,23 @@ class Common(Configuration):
         'rest_framework',            # utilities for rest apis
         'rest_framework.authtoken',  # token authentication
         'django_filters',            # for filtering rest endpoints
+        "phonenumber_field",
 
         # Your apps
         'apps.users',
+        'apps.chat',
 
     )
+    # Channels
+    ASGI_APPLICATION = 'apps.routing.application'
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                "hosts": [('127.0.0.1', 6379)],
+            },
+        },
+    }
 
     # https://docs.djangoproject.com/en/2.0/topics/http/middleware/
     MIDDLEWARE = (
@@ -40,7 +53,8 @@ class Common(Configuration):
 
     ALLOWED_HOSTS = ["*"]
     ROOT_URLCONF = 'apps.urls'
-    SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+    # SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+    SECRET_KEY = '5559ab8d425aebbb02038819567189fd'
     WSGI_APPLICATION = 'apps.wsgi.application'
 
     # Email
@@ -51,12 +65,29 @@ class Common(Configuration):
     )
 
     # Postgres
+    # DATABASES = {
+    #     'default': dj_database_url.config(
+    #         default='postgres://postgres:@postgres:5432/postgres',
+    #         conn_max_age=int(os.getenv('POSTGRES_CONN_MAX_AGE', 600))
+    #     )
+        
+    # }
+
     DATABASES = {
-        'default': dj_database_url.config(
-            default='postgres://postgres:@postgres:5432/postgres',
-            conn_max_age=int(os.getenv('POSTGRES_CONN_MAX_AGE', 600))
-        )
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.getenv('DB_NAME', 'aero_chat'),
+            'USER': os.getenv('DB_USER', 'aero_chat'),
+            'PASSWORD': os.getenv('DB_PASSWORD', 'aero_chat'),
+            'HOST': 'localhost',
+            'PORT': '5432',
+        },
+        # 'messages': {
+        #     'ENGINE' : 'django_mongodb_engine',
+        #     'NAME' : 'messages'
+        # }
     }
+    # DATABASE_ROUTERS = ['apps.chat.router.ModelMetaRouter']
 
     # General
     APPEND_SLASH = False
@@ -72,7 +103,9 @@ class Common(Configuration):
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/2.0/howto/static-files/
     STATIC_ROOT = os.path.normpath(join(os.path.dirname(BASE_DIR), 'static'))
-    STATICFILES_DIRS = []
+    STATICFILES_DIRS = [
+        ("templates", os.path.join(BASE_DIR, "apps/templates/chat")),
+    ]
     STATIC_URL = '/static/'
     STATICFILES_FINDERS = (
         'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -86,7 +119,7 @@ class Common(Configuration):
     TEMPLATES = [
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': STATICFILES_DIRS,
+            'DIRS': ['templates'],
             'APP_DIRS': True,
             'OPTIONS': {
                 'context_processors': [
