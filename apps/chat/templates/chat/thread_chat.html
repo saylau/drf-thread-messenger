@@ -12,7 +12,6 @@
     {{ thread_id|json_script:"thread-id" }}
     <script>
         const threadId = JSON.parse(document.getElementById('thread-id').textContent);
-        const username = JSON.parse(document.getElementById('username').textContent);
 
         const chatSocket = new WebSocket(
             'ws://'
